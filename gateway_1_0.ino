@@ -39,15 +39,14 @@ int interval = 2000;          // interval between sends
 int start_time;
 int receive_flag = 0;
 int cnt;
-String message;
 int check_ack = 0;
+String message;
 
 void setup()
 {
   destination = 0xDD;
-  check_ack = 0;
    //WIFI Kit series V1 not support Vext control
-  Heltec.begin(true /*DisplayEnable Enable*/, true /*Heltec.LoRa Enable*/, true /*Serial Enable*/, true /*PABOOST Enable*/, BAND /*long BAND*/);
+  Heltec.begin(true /*DisplayEnable Enable*/, true /*Heltec.LoRa Enable*/, true /*Serial Enable*/, true /*PABOOST Enable(*/, BAND /*long BAND*/);
   Heltec.display -> clear();
   
   Serial.println("Heltec.LoRa Duplex");
@@ -56,8 +55,7 @@ void setup()
   receive_flag = 0;
   cnt = 0;
   //LoRa.setSpreadingFactor(6);
-  
- // while(cnt < 5){
+  while(check_ack < 2 ){
     while(receive_flag == 0){
       if (millis() - lastSendTime > interval)
       {
@@ -70,23 +68,24 @@ void setup()
       }
       onReceive(LoRa.parsePacket());
     }
+    check_ack++;
     message = "ACK,";
-     Serial.println("check_ack");
+    Serial.println("check_ack");
     Serial.println(check_ack);
     int time_sent = millis();
     sendMessage(message,(String)time_sent);
     Serial.println(message);
     Serial.println((String)time_sent);
-    cnt++;
-  //}
-
-
-  receive_flag = 0;
+    receive_flag = 0;
+    if(check_ack == 2)
+      return;
+  }
 }
 
 void loop()
 {
-
+  //Serial.println("receive_flag");
+  //Serial.println(receive_flag);
   // logic to send ACK when a packet is received
   start_time = millis();
   if (receive_flag == 1)
@@ -112,6 +111,9 @@ void loop()
 
 void sendMessage(String outgoing, String time_sent)
 {
+  //Serial.println("entering send");
+  //Serial.println(outgoing);
+  //Serial.println(time_sent);
   LoRa.beginPacket();                   // start packet
   LoRa.write(destination);              // add destination address
   LoRa.write(localAddress);             // add sender address
@@ -163,7 +165,7 @@ void onReceive(int packetSize)
   Serial.println("RSSI: " + String(LoRa.packetRssi()));
   Serial.println("Snr: " + String(LoRa.packetSnr()));
   Serial.println();
-  receive_flag = 1;
   destination = sender;
-  check_ack++;
+  
+  receive_flag = 1;
 }
