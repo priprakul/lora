@@ -61,6 +61,7 @@ void setup()
  
   String message; 
   message = "Received TIME";   // send a message
+  delay(2000);
   sendMessage(message);
   Serial.println("Sending " + message);
   lastSendTime = millis();            // timestamp the message
@@ -79,7 +80,7 @@ void setup()
   Serial.println(gateway_time); 
   Serial.println("Gateway Offset"); 
   Serial.println(gateway_offset);
-  absolute_time = gateway_time; 
+  absolute_time = gateway_time+6000; 
   state = 0; 
 }
 
@@ -94,7 +95,7 @@ void loop()
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + 2000;
+      absolute_time= absolute_time + 4000;
       lastSendTime = millis();  
       state = 1;  
     }
