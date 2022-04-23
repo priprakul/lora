@@ -80,7 +80,9 @@ void setup()
   Serial.println("Gateway Offset"); 
   Serial.println(gateway_offset);
   absolute_time = gateway_time; 
-  state = 0; 
+  state = 0;
+
+   delay(2000);
 }
 
 void loop()
@@ -94,7 +96,7 @@ void loop()
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + 6000;
+      absolute_time= absolute_time + 3000;
       lastSendTime = millis();  
       state = 1;  
     }
