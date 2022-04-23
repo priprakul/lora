@@ -94,7 +94,7 @@ void loop()
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + 2000;
+      absolute_time= absolute_time + 6000;
       lastSendTime = millis();  
       state = 1;  
     }
@@ -147,7 +147,7 @@ void onReceive(int packetSize)
   }
 
   // if the recipient isn't this device or broadcast,
-  if ((sender == 0xBB) || (recipient == 0xBB)) {
+  if ((sender == 0xBC) || (recipient == 0xBC)) {
     //Serial.println("This message is not for me.");
     //Serial.println("Received from: 0x" + String(sender, HEX));
     //Serial.println("Sent to: 0x" + String(recipient, HEX));
