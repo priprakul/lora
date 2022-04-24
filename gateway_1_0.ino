@@ -41,6 +41,7 @@ int receive_flag = 0;
 int cnt;
 int check_ack = 0;
 String message;
+int time_sent;
 
 void setup()
 {
@@ -62,18 +63,22 @@ void setup()
         start_time = millis();
         Serial.println("inside_setup " );
         sendMessage("gate,",(String)start_time);
-    
+        //Serial.println("millis");
+        //Serial.println((String)millis());
         lastSendTime = millis();            // timestamp the message
         interval = random(2000) + 1000;    // 2-3 seconds
       }
+      //Serial.println((String)millis());
       onReceive(LoRa.parsePacket());
     }
     check_ack++;
     message = "ACK,";
     Serial.println("check_ack");
     Serial.println(check_ack);
-    int time_sent = millis();
+    time_sent = millis();
+    
     sendMessage(message,(String)time_sent);
+    
     Serial.println(message);
     Serial.println((String)time_sent);
     receive_flag = 0;
@@ -84,15 +89,13 @@ void setup()
 
 void loop()
 {
-  //Serial.println("receive_flag");
-  //Serial.println(receive_flag);
   // logic to send ACK when a packet is received
   start_time = millis();
   if (receive_flag == 1)
   {
     if (millis() - lastSendTime > interval)
     {
-        message = "Received";
+        message = "Received,";
         int time_sent = millis();
         sendMessage(message,(String)time_sent);
         Serial.println(message);
@@ -112,8 +115,16 @@ void loop()
 void sendMessage(String outgoing, String time_sent)
 {
   //Serial.println("entering send");
-  //Serial.println(outgoing);
-  //Serial.println(time_sent);
+
+  Serial.println("outgoing message");
+  Serial.println(outgoing);
+  Serial.println(time_sent);
+
+  Serial.println("destination");
+  Serial.println(destination);
+
+  Serial.println("localAddress");
+  Serial.println(localAddress);
   LoRa.beginPacket();                   // start packet
   LoRa.write(destination);              // add destination address
   LoRa.write(localAddress);             // add sender address
