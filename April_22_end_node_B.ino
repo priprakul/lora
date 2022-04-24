@@ -61,27 +61,61 @@ void setup()
  
   String message; 
   message = "Received TIME";   // send a message
-  delay(2000);
-  sendMessage(message);
+  delay(4000);
+  int count = 0; 
   Serial.println("Sending " + message);
+  while(count <3){
+  sendMessage(message);
+  count++;}
+
   lastSendTime = millis();            // timestamp the message
   receive_flag = 0; 
   while (receive_flag  == 0){
     onReceive(LoRa.parsePacket()); 
   }
   offset = millis()  - lastSendTime; 
+
+/* last send time */
+  Serial.println("Last send time");
+  Serial.println(lastSendTime);
+
+/* offset between the node - gateway - node */
+  Serial.println("offset");
+  Serial.println(offset); 
+
+  Serial.println("Current Time"); 
+  Serial.println(String(millis())); 
+  Serial.println(offset); 
+  
   delta_time = offset + 400; 
   // TODO: calculate/sync gateway clock 
   gateway_time = gateway_string_time.toInt();
 
+/* gateway time received */
+  Serial.println("Printed Received Gateway Time"); 
+  Serial.println(gateway_time);
+
+  
+
+  state = 0;
   gateway_time = gateway_time + offset; 
-  gateway_offset = gateway_time - millis(); 
-  Serial.println("Gateway Time"); 
-  Serial.println(gateway_time); 
+  gateway_offset = millis() - gateway_time;
+
+/* the gateway time calculated */
+  Serial.println("Calculated Gateway Time"); 
+  Serial.println(gateway_time);
   Serial.println("Gateway Offset"); 
   Serial.println(gateway_offset);
-  absolute_time = gateway_time+6000; 
-  state = 0; 
+  
+ int current_gateway_time = millis() - gateway_offset; 
+
+   absolute_time = current_gateway_time+5000; 
+  Serial.println("Estimated Gateway Time"); 
+  Serial.println(current_gateway_time); 
+  Serial.println("Absolute_time"); 
+  Serial.println(absolute_time); 
+  Serial.println("Gateway Offset"); 
+  Serial.println(gateway_offset);
 }
 
 void loop()
@@ -90,12 +124,14 @@ void loop()
 
   //Serial.println(String(gateway_offset + millis()));
 
-   if (gateway_offset + millis() > absolute_time){
+   if (millis()- gateway_offset> absolute_time){
+      Serial.println("Message sent " + String(millis()-gateway_offset));
+      Serial.println("Absolute Time : " + String(absolute_time));
       message = "Hello from B";
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + 4000;
+      absolute_time= absolute_time + 10000;
       lastSendTime = millis();  
       state = 1;  
     }
@@ -105,7 +141,7 @@ void loop()
       sendMessage(message);
     }*/
    //delay(200);
-   onReceive(LoRa.parsePacket()); 
+  onReceive(LoRa.parsePacket()); 
 
 }
 
