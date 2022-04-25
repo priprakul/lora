@@ -82,7 +82,7 @@ void setup()
   Serial.println(String(millis())); 
   Serial.println(offset); 
   
-  delta_time = offset + 400; 
+  delta_time = 4000; 
   // TODO: calculate/sync gateway clock 
   gateway_time = gateway_string_time.toInt();
 
@@ -100,7 +100,7 @@ void setup()
   Serial.println("Gateway Offset"); 
   Serial.println(gateway_offset);
   
-  delay(5500);
+  delay(5600);
   
   int current_gateway_time = millis() - gateway_offset; 
 
@@ -129,15 +129,17 @@ void loop()
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + 10000;
+      absolute_time= absolute_time + random(1,5) * 5000;
       lastSendTime = millis();  
       state = 1;  
     }
 
-   /*if ((receive_flag == 0) && ((millis() - lastSendTime)>delta_time)){
+   if ((receive_flag == 0) && ((millis() - lastSendTime)>delta_time)){
       resend_flag = 1; 
+      message = "Resend Hello from A";
+      lastSendTime = millis(); 
       sendMessage(message);
-    }*/
+    }
    //delay(200);
    onReceive(LoRa.parsePacket()); 
 
