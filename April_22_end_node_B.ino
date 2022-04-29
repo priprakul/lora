@@ -47,12 +47,15 @@ int sent_time;
 int delta_time;  //time wait for ack
 int state; 
 int resend_flag =0; 
+int resent = 0; 
+int sent = 0; 
+int received = 0; 
 void setup()
 {
    //WIFI Kit series V1 not support Vext control
   Heltec.begin(true /*DisplayEnable Enable*/, true /*Heltec.LoRa Enable*/, true /*Serial Enable*/, true /*PABOOST Enable*/, BAND /*long BAND*/);
   Heltec.display -> clear();
-  //LoRa.setSpreadingFactor(6);
+  LoRa.setSpreadingFactor(9);
   
   Serial.println("Heltec.LoRa Duplex");
   while (receive_flag  == 0){
@@ -87,7 +90,7 @@ void setup()
   Serial.println(String(millis())); 
   Serial.println(offset); 
   
-  delta_time = 4000; 
+  delta_time = 1000; 
   // TODO: calculate/sync gateway clock 
   gateway_time = gateway_string_time.toInt();
 
@@ -109,7 +112,7 @@ void setup()
   
  int current_gateway_time = millis() - gateway_offset; 
 
-   absolute_time = current_gateway_time+5000; 
+  absolute_time = current_gateway_time+4500; 
   Serial.println("Estimated Gateway Time"); 
   Serial.println(current_gateway_time); 
   Serial.println("Absolute_time"); 
@@ -124,23 +127,46 @@ void loop()
 
   //Serial.println(String(gateway_offset + millis()));
 
-   if (millis()- gateway_offset> absolute_time){
+  if (millis() - gateway_offset > absolute_time){
+      if (resend_flag == 1){     
+      resent +=1; 
+      message = "Resend Hello from B";
+      lastSendTime = millis(); 
+
+      Serial.println("Resend Message sent " + String(millis()-gateway_offset));
+      sendMessage(message);
+      absolute_time= absolute_time + random(1,5) * delta_time;
+      resend_flag = 0;
+      }
+      else {
+      //delay(150);
       Serial.println("Message sent " + String(millis()-gateway_offset));
       Serial.println("Absolute Time : " + String(absolute_time));
       message = "Hello from B";
       sendMessage(message);
       Serial.println(message);
       receive_flag = 0; 
-      absolute_time= absolute_time + random(1,5) * 5000;;
+      absolute_time= absolute_time + random(1,5) * delta_time;
       lastSendTime = millis();  
       state = 1;  
+      sent += 1; 
+      Serial.println("Resent:" + String(resent));  
+      Serial.println("Sent:" + String(sent));
+      Serial.println("Received:" + String(received));
+      //delay(150);
+      }
     }
 
    if ((receive_flag == 0) && ((millis() - lastSendTime)>delta_time)){
       resend_flag = 1; 
-      message = "Resend Hello from B";
+      /*message = "Resend Hello from B";
       lastSendTime = millis();  
       sendMessage(message);
+      delay(4000); 
+      resent +=1; 
+      Serial.println("Resent:" + String(resent));  
+      Serial.println("Resend Message sent " + String(millis()-gateway_offset));*/
+      //delay(150); 
     }
    //delay(200);
   onReceive(LoRa.parsePacket()); 
@@ -207,7 +233,9 @@ void onReceive(int packetSize)
   Serial.println("RSSI: " + String(LoRa.packetRssi()));
   Serial.println("Snr: " + String(LoRa.packetSnr()));
   Serial.println();
-  receive_flag = 1; 
+  receive_flag = 1;
+  received +=1; 
+  Serial.println("Received:" + String(received));  
 }
 
 
